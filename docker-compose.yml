@@ -889,3 +889,23 @@ services:
       timeout: 10s
       retries: 10
     logging: *logging
+
+  # Study App — CKA/CKS/VKS/vSphere study tools
+  study-app:
+    image: study-app:latest
+    container_name: study-app
+    build:
+      context: ./src/study-app
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - NODE_ENV=production
+      - PROXY_PORT=3001
+    logging: *logging
