@@ -308,4 +308,83 @@ export default function StudyAgent() {
  
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 12 }}>
                 {QUICK_ACTIONS.map(a => (
-                  <button key={a.i
+                  <button key={a.id} onClick={() => sendMessage(a.prompt)} style={{ padding: "9px 11px", borderRadius: 10, border: "1px solid rgba(0,212,255,0.1)", background: "rgba(0,212,255,0.03)", color: "#a0cfff", cursor: "pointer", textAlign: "left", transition: "all 0.2s", fontFamily: "'IBM Plex Sans',sans-serif", display: "flex", flexDirection: "column", gap: 3 }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(0,212,255,0.35)"; e.currentTarget.style.background = "rgba(0,212,255,0.08)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(0,212,255,0.1)"; e.currentTarget.style.background = "rgba(0,212,255,0.03)"; }}>
+                    <span style={{ fontSize: "0.95rem" }}>{a.icon}</span>
+                    <span style={{ fontSize: "0.73rem", fontWeight: 600, color: "#c5d8f0" }}>{a.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {messages.map((msg, i) => (
+            <div key={i} style={{ marginBottom: 14, animation: "fadeSlideIn 0.3s ease", display: "flex", flexDirection: "column", alignItems: msg.role === "user" ? "flex-end" : "flex-start" }}>
+              {msg.role === "user" ? (
+                <div style={{ maxWidth: "85%", background: "rgba(50,108,229,0.12)", border: "1px solid rgba(50,108,229,0.2)", borderRadius: "12px 12px 3px 12px", padding: "9px 13px", fontSize: "0.81rem", color: "#c5d8f0", lineHeight: 1.65 }}>
+                  {msg.displayContent || msg.content}
+                </div>
+              ) : (
+                <div style={{ maxWidth: "92%", width: "100%" }}>
+                  {msg.searchQueries?.length > 0 && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 7 }}>
+                      {msg.searchQueries.map((q, qi) => (
+                        <span key={qi} style={{ fontSize: "0.58rem", color: "#00b373", background: "rgba(0,179,115,0.08)", border: "1px solid rgba(0,179,115,0.2)", padding: "2px 7px", borderRadius: 10, fontFamily: "'Space Mono',monospace" }}>🔍 {q}</span>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ background: "rgba(0,212,255,0.03)", border: "1px solid rgba(0,212,255,0.1)", borderRadius: "3px 12px 12px 12px", padding: "11px 13px" }}>
+                    {renderText(msg.content)}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {searchStatus && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", background: "rgba(0,179,115,0.06)", border: "1px solid rgba(0,179,115,0.15)", borderRadius: 8, marginBottom: 10, animation: "fadeSlideIn 0.3s ease" }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#00b373", animation: "pulse 1s infinite" }} />
+              <span style={{ fontSize: "0.72rem", color: "#00b373", fontFamily: "'Space Mono',monospace" }}>{searchStatus}</span>
+            </div>
+          )}
+
+          {loading && !searchStatus && (
+            <div style={{ display: "flex", gap: 5, padding: "10px 13px" }}>
+              {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#00d4ff", animation: `pulse 1.2s infinite ${i * 0.2}s` }} />)}
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Input */}
+      <div style={{ padding: "10px 13px", borderTop: "1px solid rgba(0,212,255,0.1)", background: "rgba(5,11,24,0.97)", backdropFilter: "blur(10px)" }}>
+        <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", gap: 8, alignItems: "flex-end" }}>
+          <div style={{ flex: 1, position: "relative" }}>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={`Ask anything about ${activeDomainObj?.label || "all domains"}…`}
+              rows={1}
+              style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(0,212,255,0.15)", borderRadius: 10, padding: "10px 13px", color: "#c5d8f0", fontSize: "0.82rem", fontFamily: "'IBM Plex Sans',sans-serif", lineHeight: 1.5, maxHeight: 120, overflowY: "auto" }}
+            />
+          </div>
+          <button
+            onClick={() => sendMessage(input)}
+            disabled={loading || !input.trim()}
+            style={{ padding: "10px 16px", borderRadius: 10, border: "1px solid rgba(0,212,255,0.25)", background: loading || !input.trim() ? "transparent" : "rgba(0,212,255,0.1)", color: loading || !input.trim() ? "#1e3a5a" : "#00d4ff", cursor: loading || !input.trim() ? "default" : "pointer", fontFamily: "'Space Mono',monospace", fontSize: "0.75rem", fontWeight: 700, transition: "all 0.2s", whiteSpace: "nowrap" }}>
+            {loading ? "..." : "SEND →"}
+          </button>
+        </div>
+        <div style={{ maxWidth: 720, margin: "4px auto 0", display: "flex", justifyContent: "space-between" }}>
+          <span style={{ fontSize: "0.58rem", color: "#1e3a5a", fontFamily: "'Space Mono',monospace" }}>Enter to send · Shift+Enter for new line</span>
+          <span style={{ fontSize: "0.58rem", color: "#1e3a5a", fontFamily: "'Space Mono',monospace" }}>Model: claude-sonnet-4-20250514</span>
+        </div>
+      </div>
+    </div>
+  );
+}
