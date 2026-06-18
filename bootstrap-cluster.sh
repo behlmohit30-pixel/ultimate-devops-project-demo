@@ -19,6 +19,10 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
+    extraPortMappings:
+      - containerPort: 30001
+        hostPort: 3001
+        protocol: TCP
   - role: worker
   - role: worker
 EOF
@@ -46,4 +50,4 @@ else
 fi
 
 kubectl get pods -l app.kubernetes.io/name=study-app
-echo "==> Done. Run: kubectl port-forward svc/study-app 3001:3001"
+echo "==> Done. App reachable at http://localhost:3001 (Kind NodePort 30001 -> host port 3001, no port-forward needed)."
