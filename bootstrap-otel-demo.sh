@@ -4,8 +4,8 @@
 # from cka-study (the study-app cluster) so it's safe to break/recreate
 # during CKA Troubleshooting practice without risking study-app's uptime.
 #
-# Single-node (control-plane only, untainted) to keep resource usage low
-# on resource-constrained VMs running two clusters at once.
+# 3-node (control-plane + 2 workers), matching cka-study's topology, so
+# multi-node CKA exercises (drain/cordon/scheduling) are meaningful here.
 set -euo pipefail
 
 CLUSTER_NAME="otel-demo"
@@ -28,14 +28,18 @@ nodes:
       - containerPort: 30080
         hostPort: 8080
         protocol: TCP
+  - role: worker
+  - role: worker
 EOF
   kind export kubeconfig --name "$CLUSTER_NAME"
-  echo "==> Waiting for node to be Ready..."
+  echo "==> Waiting for nodes to be Ready..."
   kubectl wait --for=condition=Ready nodes --all --timeout=120s
 fi
 
-echo "==> Ensuring node survives VM reboot (restart policy)..."
-docker update --restart unless-stopped "${CLUSTER_NAME}-control-plane" >/dev/null 2>&1 || true
+echo "==> Ensuring nodes survive VM reboot (restart policy)..."
+for node in "${CLUSTER_NAME}-control-plane" "${CLUSTER_NAME}-worker" "${CLUSTER_NAME}-worker2"; do
+  docker update --restart unless-stopped "$node" >/dev/null 2>&1 || true
+done
 
 cd "$REPO_DIR"
 
