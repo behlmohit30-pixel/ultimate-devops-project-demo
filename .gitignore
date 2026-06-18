@@ -10,6 +10,7 @@
 \#*\#
 
 docker-compose.override.yml
+.study-app-secret
 
 # Eclipse
 .classpath
