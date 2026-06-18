@@ -33,9 +33,6 @@ nodes:
       - containerPort: 30001
         hostPort: 3001
         protocol: TCP
-      - containerPort: 30080
-        hostPort: 8080
-        protocol: TCP
   - role: worker
   - role: worker
 EOF
@@ -90,13 +87,4 @@ echo "==> Waiting for rollout..."
 kubectl rollout status deployment study-app --timeout=120s
 
 kubectl get pods -l app.kubernetes.io/name=study-app
-echo "==> study-app reachable at http://localhost:3001"
-
-echo "==> Applying opentelemetry-demo manifests..."
-kubectl apply -f kubernetes/complete-deploy.yaml
-
-echo "==> Waiting for opentelemetry-demo pods (this pulls ~15 public images, may take a few minutes)..."
-kubectl rollout status deployment opentelemetry-demo-frontendproxy --timeout=300s || true
-
-kubectl get pods -l app.kubernetes.io/part-of=opentelemetry-demo
-echo "==> Done. opentelemetry-demo reachable at http://localhost:8080 (Kind NodePort 30080 -> host port 8080)."
+echo "==> Done. App reachable at http://localhost:3001 (Kind NodePort 30001 -> host port 3001, no port-forward needed)."
